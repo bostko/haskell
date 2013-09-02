@@ -1,3 +1,5 @@
+import Debug.Trace
+
 import Data.Char
 
 parseDigits :: [Char] -> Int -> ([Char], Int)
@@ -26,15 +28,15 @@ simpleCalc op a b
 parseOperatorsAndOperands
   :: [Char] -> [Char] -> [Int] -> Int
 
--- parseOperatorsAndOperands [] [] [0.0] = 10.0
-parseOperatorsAndOperands [] [] [result] = result
+parseOperatorsAndOperands [] _ [result] = result
+parseOperatorsAndOperands [_] _ [result] = result
 parseOperatorsAndOperands (x:xs) operators operands
-  | isOperator x && priority (operators !! 0) >= priority x = parseOperatorsAndOperands xs operators ((simpleCalc (operators !! 0) (operands !! 0) (operands !! 1)):operands)
-  | isOperator x && otherwise                 = parseOperatorsAndOperands xs (x:operators) operands
+  | isOperator x && (null operators || priority (operators !! 0) >= priority x) && (length operands) > 1 = parseOperatorsAndOperands xs (tail operators) ((simpleCalc (operators !! 0) (operands !! 0) (operands !! 1)):operands)
+  | isOperator x && not ((null operators || priority (operators !! 0) >= priority x) && (length operands) > 1) = parseOperatorsAndOperands xs (x:operators) operands
   | isNumber x = parseOperatorsAndOperands (fst (parseDigits (x:xs) 0)) operators ((snd (parseDigits (x:xs) 0)):operands) -- put dollar insteadof brackets, use let parseDigits (x:xs)
-
+  | otherwise = operands !! 0 
 
 calculate :: [Char] -> Int 
-calculate str = parseOperatorsAndOperands str [] [] 
+calculate str = parseOperatorsAndOperands str "" [] 
 
 
