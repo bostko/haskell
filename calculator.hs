@@ -4,5 +4,7 @@ calculate "" = 0.0
 
 -- parseNext :: [Char] -> (Fractional a => a)
 
-parseDigits "" res = res
-parseDigits (x:xs) res = parseDigits xs ((res * 10) + ord x - ord '0')  
+parseDigits "" res = ("", res)
+parseDigits (x:xs) res
+  |isNumber x = parseDigits xs ((res * 10) + ord x - ord '0')
+  |otherwise  = ((x:xs), res)
